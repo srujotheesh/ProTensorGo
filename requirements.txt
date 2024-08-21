@@ -3,4 +3,3 @@ pandas
 numpy
 matplotlib
 nltk
-word_tokenize

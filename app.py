@@ -1,17 +1,18 @@
-import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import string
+import io
+import streamlit as st
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import nltk
+import string
+import matplotlib.pyplot as plt
 
-# Download NLTK resources
+# Ensure necessary NLTK data is downloaded
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Preprocess text
+# Function to preprocess text by removing stopwords and symbols
 def preprocess_text(text):
     tok = word_tokenize(text)
     stop_words = set(stopwords.words('english'))
@@ -19,14 +20,8 @@ def preprocess_text(text):
     cleaned_tokens = [word for word in tok if word.lower() not in stop_words and word not in symbols]
     return cleaned_tokens
 
-# Cache the data loading
-@st.cache_data
-def load_data(file):
-    df = pd.read_csv(file)
-    return df
-
-# Get statistical answer
-def get_statistical_answer(df, column_name, statistic):
+# Function to perform statistical operations
+def get_statistical_answer(column_name, statistic):
     if column_name in df.columns:
         data_column = df[column_name]
 
@@ -47,51 +42,47 @@ def get_statistical_answer(df, column_name, statistic):
     else:
         return "Column not found."
 
-# Plot functions
+# Functions to generate plots
 def generate_histogram(df, column):
     plt.hist(df[column], bins=10, alpha=0.7, color='blue')
     plt.title(f'Histogram of {column}')
     plt.xlabel(column)
     plt.ylabel('Frequency')
-    st.pyplot(plt)
+    plt.show()
 
 def generate_scatter_plot(df, col1, col2):
     plt.scatter(df[col1], df[col2], alpha=0.7)
     plt.title(f'Scatter plot of {col1} vs {col2}')
     plt.xlabel(col1)
     plt.ylabel(col2)
-    st.pyplot(plt)
+    plt.show()
 
 def generate_line_plot(df, column):
     plt.plot(df[column])
     plt.title(f'Line plot of {column}')
     plt.xlabel('Index')
     plt.ylabel(column)
-    st.pyplot(plt)
+    plt.show()
 
-# Answer the question
-def answer_question(df, question):
+# Function to answer the question
+def answer_question(question):
     if len(question) > 2:
-        generate_scatter_plot(df, question[0], question[2])
+        result = generate_scatter_plot(df, question[0], question[2])
     else:
-        result = get_statistical_answer(df, question[1], question[0])
-        st.write(f"Answer: {result}")
+        result = get_statistical_answer(question[1], question[0])
+    return result
 
-# Streamlit app layout
-st.title("CSV Statistical Analysis")
+# Streamlit input
+st.title("Statistical Analysis App")
+path = st.text_input("Enter your dataset path.")
+if path:
+    df = pd.read_csv(path)
+    st.write("Data Preview:")
+    st.dataframe(df.head())
 
-uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
+    question_input = st.text_input("Enter your question (e.g., 'min Age line'): ")
+    if question_input:
+        question = preprocess_text(question_input)
+        answer = answer_question(question)
+        st.write("Answer:", answer)
 
-if uploaded_file is not None:
-    df = load_data(uploaded_file)
-    st.dataframe(df)
-
-    question_input = st.text_input("Enter your question (format: 'statistical_term column_name')")
-
-    if st.button("Get Answer"):
-        if question_input:
-            question = preprocess_text(question_input)
-            print(question)
-            answer_question(df, question)
-        else:
-            st.write("Please enter a valid question.")

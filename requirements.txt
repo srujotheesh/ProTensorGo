@@ -3,3 +3,6 @@ pandas
 numpy
 matplotlib
 nltk
+stopwords
+punkt
+word_tokenizer

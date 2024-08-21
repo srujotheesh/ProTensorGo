@@ -91,6 +91,7 @@ if uploaded_file is not None:
     if st.button("Get Answer"):
         if question_input:
             question = preprocess_text(question_input)
+            print(question)
             answer_question(df, question)
         else:
             st.write("Please enter a valid question.")

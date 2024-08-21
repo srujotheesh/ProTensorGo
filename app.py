@@ -44,6 +44,8 @@ def get_statistical_answer(df, column_name, statistic):
             return generate_histogram(df, column_name)
         elif statistic == 'line':
             return generate_line_plot(df, column_name)
+        elif statistic == 'box':
+            return generate_box_plot(df, column_name)
         else:
             return "Statistic not recognized."
     else:
@@ -57,12 +59,15 @@ def generate_histogram(df, column):
     plt.ylabel('Frequency')
     st.pyplot(plt)
 
-def generate_scatter_plot(df, col1, col2):
-    plt.scatter(df[col1], df[col2], alpha=0.7)
-    plt.title(f'Scatter plot of {col1} vs {col2}')
-    plt.xlabel(col1)
-    plt.ylabel(col2)
-    st.pyplot(plt)
+def generate_box_plot(df, column):
+    if column in df.columns:
+        plt.boxplot(df[column].dropna())
+        plt.title(f'Box plot of {column}')
+        plt.xlabel(column)
+        plt.ylabel('Values')
+        st.pyplot(plt)
+    else:
+        st.write(f"Column '{column}' not found in the DataFrame.")
 
 def generate_line_plot(df, column):
     plt.plot(df[column])

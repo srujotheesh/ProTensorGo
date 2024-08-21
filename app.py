@@ -10,14 +10,16 @@ import nltk
 # Download NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
+def simple_tokenize(text):
+    return text.split()
 
-# Preprocess text
 def preprocess_text(text):
-    tok = word_tokenize(text)
+    tok = simple_tokenize(text)
     stop_words = set(stopwords.words('english'))
     symbols = set(string.punctuation)
     cleaned_tokens = [word for word in tok if word.lower() not in stop_words and word not in symbols]
     return cleaned_tokens
+
 
 # Cache the data loading
 @st.cache_data
